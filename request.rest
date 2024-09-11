@@ -1,0 +1,24 @@
+Get http://localhost:6000/getBlog
+
+### signup
+POST http://localhost:5000/signup
+Content-Type: application/json
+
+{
+    "email": "eric@gmail.com",
+    "password": "eric247"
+}
+
+### signup
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "email": "eric@gmail.com",
+    "password": "eric247"
+}
+
+###
+POST http://localhost:5000/postBlog
+Content-Type: application/json
+
