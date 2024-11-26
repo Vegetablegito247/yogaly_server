@@ -1,9 +1,13 @@
-module.exports = {
-    apiKey: process.env.API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    projectId: process.env.PROJECT_ID,
-    storageBucket: process.env.STORAGE_BUCKET,
-    messagingSenderId: process.env.MESSAGING_SENDER_ID,
-    appId: process.env.APP_ID,
-    measurementId: process.env.MEASUREMENT_ID
-}
+// config/firebaseConfig.js
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getStorage } = require('firebase-admin/storage');
+const serviceAccount = require('../../yogaly-fc596-firebase-adminsdk-iytym-681cc43f32.json');
+
+const app = initializeApp({
+  credential: cert(serviceAccount),
+  storageBucket: 'lasop-test.appspot.com', // Replace with your actual bucket name
+});
+
+// Export the storage instance
+const storage = getStorage(app);
+module.exports = { storage };

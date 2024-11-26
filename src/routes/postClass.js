@@ -1,8 +1,12 @@
 const Classes = require('../models/classes');
 const multer = require('multer');
-const { initializeApp } = require("firebase/app");
-const { getStorage, ref, uploadBytes, getDownloadURL } = require("firebase/storage");
-const firebaseConfig = require('../config/firebaseConfig');
+const { storage } = require('../../config/firebaseConfig');
+const bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const uploadClass = multer({
     storage: multer.memoryStorage(), // Use memory storage
@@ -10,29 +14,49 @@ const uploadClass = multer({
 
 const postClass = async (req, res) => {
     try {
-        const { title, description, tutor, time } = req.body;
+        const { title, description, tutor, price, time } = req.body;
         const image = req.file;
 
-        const storage = getStorage(app);
-        let fileUrl = '';
-
-        if(image) {
-            const storageRef = ref(storage, `images/${image.originalname}`);
-            const snapshot = await uploadBytes(storageRef, image.buffer);
-            fileUrl = await getDownloadURL(snapshot.ref);
+        if(!image) {
+            return res.status(400).json({ error: 'No Image file uploaded.' });
         }
 
-        const newClass = new Classes({
-            title: title,
-            description: description,
-            tutor: tutor,
-            dateTime: dateTime,
-            time: time,
-            image: fileUrl
+        const bucket = storage.bucket();
+        const file = bucket.file(`images/${encodeURIComponent(image.originalname)}`);
+
+        // Create a write stream to upload the file
+        const stream = file.createWriteStream({
+            metadata: {
+                contentType: image.mimetype,
+            },
         });
 
-        const savedClass = await newClass.save();
-        res.status(200).json({ message: 'Class has been published', data: savedClass });
+        stream.on('error', (err) => {
+            return res.status(500).json({ error: 'Failed to upload file', details: err.message });
+        });
+
+        stream.on('finish', async () => {
+            // Get the public URL of the uploaded file
+            const fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(file.name)}?alt=media`;
+
+            // Create the certificate document with the correct URL
+            const classData = await Classes.create({
+                title,
+                description,
+                tutor,
+                time,
+                price,
+                image: fileUrl
+            });
+
+            res.status(201).json({
+                message: 'Classes created successfully',
+                data: classData
+            });
+        });
+
+        // Write the file buffer to the storage
+        stream.end(image.buffer);
     } catch (err) {
         res.status(400).json({ error: err.message });
     };

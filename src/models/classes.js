@@ -15,6 +15,10 @@ const classSchema = new Schema({
         required: true
     },
     time: {
+        type: Date,
+        required: true
+    },
+    price: {
         type: String,
         required: true
     },
