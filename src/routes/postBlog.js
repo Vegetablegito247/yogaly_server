@@ -1,6 +1,6 @@
 const Blog = require('../models/blog');
 const multer = require('multer');
-const { storage } = require('../../config/firebaseConfig');
+const { storage } = require('../config/firebaseConfig');
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();

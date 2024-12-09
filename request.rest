@@ -19,6 +19,13 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5000/postBlog
-Content-Type: application/json
+POST http://localhost:8000/postBlog
+Content-Type: multipart/form-data
 
+{
+    "title": "My First Blog Post",
+    "summary": "Testing if it works",
+    "content": "This is my first blog post!",
+    "author": "Eric",
+    "image": "https://c.files.bbci.co.uk/10DD8/production/_114608096_wizkidsmileofficialvideo.jpg"
+}
